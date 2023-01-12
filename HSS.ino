@@ -1,8 +1,26 @@
+/*
+ Project Title: Home Security System
+ Author: Jun Peng
+ Class: Tech 169
+ Term: Spring 2014
+ Started Date: 3/25/2014
+ Due date: 5/5/2014
+ Version: 1.0
+ Revision Date: 5/3/2014,
+*/
+
+/////////////////////////////////////////////////////////////////
 #include <LiquidCrystal.h>
 #include <Wire.h>
 #include <Password.h> //http://www.arduino.cc/playground/uploads/Code/Password.zip
 #include <Keypad.h> //http://www.arduino.cc/playground/uploads/Code/Keypad.zip
+#include <Servo.h> 
 #include "RTClib.h"
+
+//Servo
+Servo myservo;        // create servo object to control a servo           
+int pos = 90;         // variable to store the servo position 
+int passwd_pos = 15;  // the postition of the password input
 
 //Real Time Clock
 RTC_DS1307 RTC; 
@@ -70,6 +88,8 @@ void setup(){
   RTC.begin();
   //If we remove the comment from the following line, we will set up the module time and date with the computer one
   RTC.adjust(DateTime(__DATE__, __TIME__));
+  
+  myservo.attach(2);  // attaches the servo on pin 2 to the servo object 
 
   displayCodeEntryScreen();
 
@@ -126,8 +146,14 @@ void loop(){
   lcd.print(':');
   lcd.setCursor(16,1);
   lcd.print(now.minute(), DEC);
+  //lcd.print(':');
+  //lcd.print(now.second(), DEC);
+  //delay(1000);
 
   keypad.getKey();
+  //Serial.println(digitalRead(reedPin2));
+  //Serial.println(digitalRead(pirPin));
+  //Serial.println(digitalRead(pirPin2));
   if (alarmActive == 1){ 
     if (digitalRead(pirPin1) == HIGH)
     {
@@ -222,6 +248,25 @@ void alarmTriggered(){
    } else {
      incr = -1;
    }
+   
+   for (pos = pos; pos != expected_pos; pos += incr) {
+    myservo.write(pos);                  // tell servo to go to position in variable 'pos' 
+    delay(5);                            // waits 5ms for the servo to reach the position 
+   }
+   
+   /*
+   for(pos = 0; pos < angle; pos += 1)   // goes from 0 degrees to 180 degrees 
+  {                                      // in steps of 1 degree 
+    myservo.write(pos);                  // tell servo to go to position in variable 'pos' 
+    delay(20);                           // waits 15ms for the servo to reach the position 
+  } 
+  for(pos = angle; pos>=1; pos-=1)       // goes from 180 degrees to 0 degrees 
+  {                                
+   myservo.write(pos);                   // tell servo to go to position in variable 'pos' 
+   delay(20);                            // waits 15ms for the servo to reach the position 
+  } 
+  */
+  
   {
    StrokeLight();
   }
